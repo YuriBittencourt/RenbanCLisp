@@ -1,6 +1,6 @@
 ; Esta função cria as estrutura que representam o puzzle
 (defun cria_puzzle()
-
+    ;(defvar n 7)
     ; Cria a matriz principal, defvar seta var global
     (defvar matriz-principal (make-array '(7 7)
     :initial-contents '((0 0 7 0 5 0 2)
@@ -105,7 +105,25 @@
 
 ; Esta função implementa o backtracking, estratégia empregada para a resolução do cria_puzzle
 (defun resolve()
-
+  (dotimes (lin 7)
+    (dotimes (col 7)
+      (if (=(aref matriz-principal lin col) 0)
+          (progn
+            (loop for num from 1 to 7 do
+              (if (eq(possivel lin col num) T)
+                  (progn
+                    (add-numero lin col num)
+                    (write matriz-principal)
+                    (resolve)
+                    (add-numero lin col 0)
+                  )
+              )
+            )
+            (return-from resolve nil)
+          )
+      )
+    )
+  )
 )
 
 (defun main()
@@ -119,6 +137,8 @@
     (set-grupos)
     (write lista-grupos)
     (write (possivel 3 1 2))
+    (resolve)
+    (write matriz-principal)
 )
 
 (main)
