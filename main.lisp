@@ -21,6 +21,7 @@
                         (13 12 12 11 11 9 9)
                         (13 12 12 11 10 9 9))))
 
+
     ;(defvar num_grupos '(21))
 
     ; Cria uma lista que guarda os valores de cada grupo
@@ -49,10 +50,22 @@
     (setf (aref lista-grupos grupo) (append (aref lista-grupos grupo) (list valor)))
 )
 
+; Remove elemento em grupo
+(defun remove-grupo(grupo valor)
+  (setf (aref lista-grupos grupo) (remove valor (aref lista-grupos grupo)))
+)
+
 ; Insere número na matriz principal
 (defun add-numero(lin col num)
     (setf (aref matriz-principal lin col) num)
     (add-grupo (aref matriz-secundaria lin col) num)
+)
+
+; Remove número da matriz principal
+(defun remove-numero (lin col)
+  (setf x (aref matriz-principal lin col))
+  (add-numero lin col 0)
+  (remove-grupo (aref matriz-secundaria lin col) x)
 )
 
 ; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, duas condições devem ser atendidas:
@@ -113,9 +126,9 @@
               (if (eq(possivel lin col num) T)
                   (progn
                     (add-numero lin col num)
-                    (write matriz-principal)
+                    ; (write matriz-principal)
                     (resolve)
-                    (add-numero lin col 0)
+                    (remove-numero lin col)
                   )
               )
             )
