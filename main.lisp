@@ -1,7 +1,7 @@
 ; Esta função cria as estrutura que representam o puzzle
 (defun cria_puzzle()
 
-  ; Cria a matriz principal, defvar seta var global
+    ; Cria a matriz principal, defvar seta var global
     (defvar matriz-principal (make-array '(7 7)
     :initial-contents '((0 0 7 0 5 0 2)
                         (0 0 0 0 0 0 0)
@@ -21,30 +21,49 @@
                         (13 12 12 11 11 9 9)
                         (13 12 12 11 10 9 9))))
 
-    ;(setf num_grupos 21)
+    ;(defvar num_grupos '(21))
 
     ; Cria uma lista que guarda os valores de cada grupo
     ; Usado para checar se há uma sequência válida de valores
     (defvar lista-grupos (make-array '(21)))
     (dotimes (i (array-total-size lista-grupos))
-        (setf (aref lista-grupos i) '(0))
-    
-    (defvar lista-tamanhos (make-array '(21)))
-    ()
-
-  )
+        (setf (aref lista-grupos i) '())
+    )
 )
 
+; Inicializa os elementos nos grupos de acordo com o tabuleiro inicial
 (defun set-grupos()
-    (loop for i below (array-total-size matriz-secundaria)
-        ;(nconc (aref lista-grupos i) )
+    (defvar valor)
+    (defvar index)
+    (loop for i below (array-total-size matriz-secundaria) do
+        (setf valor (row-major-aref matriz-principal i))
+        (setf index (row-major-aref matriz-secundaria i))
+        (if (/= valor 0)
+            (add-grupo index valor)
+        )
     )
+)
+
+; Insere elemento em grupo
+(defun add-grupo(grupo valor)
+    (setf (aref lista-grupos grupo) (append (aref lista-grupos grupo) (list valor)))
+)
+
+; Insere número na matriz principal
+(defun add-numero(lin col num)
+    (setf (aref matriz-principal lin col) num)
+    (add-grupo (aref matriz-secundaria lin col) num)
 )
 
 ; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, duas condições devem ser atendidas:
 ; 1. "num" não está contido no grupo "g".
 ; 2. "num" não está contido na linha "lin" nem na coluna "col";
-(defun possivel())
+(defun possivel(lin col num)
+    (if (not (or (busca-grupo lin col num) (busca-linha-coluna lin col num)))
+        t
+    )
+)
+
 ; Função de busca em lista
 (defun busca(lista x)
     (cond
@@ -58,13 +77,12 @@
 )
 
 ; Verifica a condição 1
-(defun search1(lin col num)
+(defun busca-grupo(lin col num)
     (busca (aref lista-grupos (aref matriz-secundaria lin col)) num)
 )
 
 ; Verifica a condição 2
-(defun search2(lin col num)
-    ; Retorna T se não encontrar "num" na linha "lin" nem na coluna "col" 
+(defun busca-linha-coluna(lin col num)
     (if (or
             (busca (getlinha matriz-principal lin) num)
             (busca (getcoluna matriz-principal col) num)
@@ -73,11 +91,13 @@
     )
 )
 
+; Getter para linha
 (defun getlinha(matriz lin)
     (loop for i below (array-dimension matriz 0) collect
         (aref matriz lin i))
 )
 
+; Getter para coluna
 (defun getcoluna(matriz col)
     (loop for i below (array-dimension matriz 0) collect
         (aref matriz i col))
@@ -88,7 +108,6 @@
 
 )
 
-
 (defun main()
     ; cria_puzzle()
     ; mostrar puzzle
@@ -97,8 +116,9 @@
     (cria_puzzle)
     (write matriz-principal)
     (write matriz-secundaria)
+    (set-grupos)
     (write lista-grupos)
-    (write (search2 0 0 (read)))
+    (write (possivel 3 1 2))
 )
 
 (main)
