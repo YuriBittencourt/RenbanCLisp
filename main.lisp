@@ -13,13 +13,13 @@
 
     ; Cria matriz de grupos, cada valor corresponde ao grupo que a posicao pertence
     (defvar matriz-secundaria (make-array '(7 7)
-    :initial-contents '((1 2 3 3 4 5 5)
-                        (19 19 20 3 4 5 6)
-                        (17 18 21 21 4 7 8)
-                        (17 17 21 4 4 8 8)
-                        (15 16 16 16 16 9 9)
-                        (14 13 13 12 12 10 10)
-                        (14 13 13 12 11 10 10))))
+    :initial-contents '((0 1 2 2 3 4 4)
+                        (18 18 19 2 3 4 5)
+                        (16 17 20 20 3 6 7)
+                        (16 16 20 3 3 7 7)
+                        (14 15 15 15 15 8 8)
+                        (13 12 12 11 11 9 9)
+                        (13 12 12 11 10 9 9))))
 
     ;(setf num_grupos 21)
 
