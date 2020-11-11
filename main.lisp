@@ -2,7 +2,7 @@
 (defun cria_puzzle()
 
   ; Cria a matriz principal, defvar seta var global
-  (defvar matriz-principal (make-array '(7 7)
+    (defvar matriz-principal (make-array '(7 7)
     :initial-contents '((0 0 7 0 5 0 2)
                         (0 0 0 0 0 0 0)
                         (2 0 0 0 0 1 0)
@@ -11,8 +11,8 @@
                         (0 0 1 0 0 0 0)
                         (0 0 0 0 0 6 4))))
 
-  ; Cria matriz de grupos, cada valor corresponde ao grupo que a posicao pertence
-  (defvar matriz-secundaria (make-array '(7 7)
+    ; Cria matriz de grupos, cada valor corresponde ao grupo que a posicao pertence
+    (defvar matriz-secundaria (make-array '(7 7)
     :initial-contents '((1 2 3 3 4 5 5)
                         (19 19 20 3 4 5 6)
                         (17 18 21 21 4 7 8)
@@ -21,17 +21,66 @@
                         (14 13 13 12 12 10 10)
                         (14 13 13 12 11 10 10))))
 
-  ; Cria uma lista que guarda os valores de cada grupo
-  ; Usado para checar se há uma sequência válida de valores
-  (defvar lista-grupos (make-array '(21)))
+    ;(setf num_grupos 21)
+
+    ; Cria uma lista que guarda os valores de cada grupo
+    ; Usado para checar se há uma sequência válida de valores
+    (defvar lista-grupos (make-array '(21)))
+    (dotimes (i (array-total-size lista-grupos))
+        (setf (aref lista-grupos i) '(0))
+    
+    (defvar lista-tamanhos (make-array '(21)))
+    ()
+
+  )
 )
 
+(defun set-grupos()
+    (loop for i below (array-total-size matriz-secundaria)
+        ;(nconc (aref lista-grupos i) )
+    )
+)
 
-; Esta função checa se um valor(1-N) é válido em uma posição do puzzle
-; É invocada pela função resolve, lin e col representam a posição na matriz
-; num é o valor que será testado se é possivel ser colocado na posicao [lin][col]
-(defun possivel(lin col num)
+; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, duas condições devem ser atendidas:
+; 1. "num" não está contido no grupo "g".
+; 2. "num" não está contido na linha "lin" nem na coluna "col";
+(defun possivel())
+; Função de busca em lista
+(defun busca(lista x)
+    (cond
+        ((null lista)
+            NIL)
+        ((= (first lista) x)
+            t)
+        (t (= (first lista) x)
+            (busca (rest lista) x))
+    )
+)
 
+; Verifica a condição 1
+(defun search1(lin col num)
+    (busca (aref lista-grupos (aref matriz-secundaria lin col)) num)
+)
+
+; Verifica a condição 2
+(defun search2(lin col num)
+    ; Retorna T se não encontrar "num" na linha "lin" nem na coluna "col" 
+    (if (or
+            (busca (getlinha matriz-principal lin) num)
+            (busca (getcoluna matriz-principal col) num)
+        )
+        t
+    )
+)
+
+(defun getlinha(matriz lin)
+    (loop for i below (array-dimension matriz 0) collect
+        (aref matriz lin i))
+)
+
+(defun getcoluna(matriz col)
+    (loop for i below (array-dimension matriz 0) collect
+        (aref matriz i col))
 )
 
 ; Esta função implementa o backtracking, estratégia empregada para a resolução do cria_puzzle
@@ -49,6 +98,7 @@
     (write matriz-principal)
     (write matriz-secundaria)
     (write lista-grupos)
+    (write (search2 0 0 (read)))
 )
 
 (main)
