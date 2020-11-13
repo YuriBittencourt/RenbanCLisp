@@ -1,6 +1,6 @@
 ; Esta função cria as estrutura que representam o puzzle
 (defun cria_puzzle()
-    ;(defvar n 7)
+    (defvar n 7)
     ; Cria a matriz principal, defvar seta var global
     (defvar matriz-principal (make-array '(7 7)
     :initial-contents '((0 0 7 0 5 0 2)
@@ -34,13 +34,12 @@
 
 ; Inicializa os elementos nos grupos de acordo com o tabuleiro inicial
 (defun set-grupos()
-    (defvar valor)
-    (defvar index)
+    (let ((valor) (index-grupo)))
     (loop for i below (array-total-size matriz-secundaria) do
         (setf valor (row-major-aref matriz-principal i))
-        (setf index (row-major-aref matriz-secundaria i))
+        (setf index-grupo (row-major-aref matriz-secundaria i))
         (if (/= valor 0)
-            (add-grupo index valor)
+            (add-grupo index-grupo valor)
         )
     )
 )
@@ -116,28 +115,44 @@
         (aref matriz i col))
 )
 
-; Esta função implementa o backtracking, estratégia empregada para a resolução do cria_puzzle
-(defun resolve()
-  (dotimes (lin 7)
-    (dotimes (col 7)
-      (if (=(aref matriz-principal lin col) 0)
-          (progn
-            (loop for num from 1 to 7 do
-              (if (eq(possivel lin col num) T)
-                  (progn
-                    (add-numero lin col num)
-                    ; (write matriz-principal)
-                    (resolve)
-                    (remove-numero lin col)
-                  )
-              )
-            )
-            (return-from resolve nil)
-          )
-      )
-    )
+
+(defun concluido()
+  (write matriz-principal)
+  (exit)
+)
+
+(defun iteracao(lin col)
+  (if (and (= lin (- n 1)) (= col (- n 1)))
+    (concluido)
+  )
+
+  (if (= col (- n 1))
+      (resolve (+ lin 1) 0)
+      (resolve lin (+ col 1))
   )
 )
+
+; Esta função implementa o backtracking, estratégia empregada para a resolução do cria_puzzle
+(defun resolve(lin col)
+  (if (=(aref matriz-principal lin col) 0)
+      (progn
+        (loop for num from 1 to 7 do
+
+          (if (eq(possivel lin col num) T)
+
+              (progn
+                (add-numero lin col num)
+                (iteracao lin col)
+                (remove-numero lin col)
+              )
+          )
+        )
+      )
+      (iteracao lin col)
+  )
+)
+
+
 
 (defun main()
     ; cria_puzzle()
@@ -145,13 +160,8 @@
     ; resolve()
     ; mostrar resultado
     (cria_puzzle)
-    (write matriz-principal)
-    (write matriz-secundaria)
     (set-grupos)
-    (write lista-grupos)
-    (write (possivel 3 1 2))
-    (resolve)
-    (write matriz-principal)
+    (resolve 0 0)
 )
 
 (main)
