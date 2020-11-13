@@ -26,9 +26,11 @@
 
     ; Cria uma lista que guarda os valores de cada grupo
     ; Usado para checar se há uma sequência válida de valores
+    (defvar tamanho-grupos (make-array '(21)))
     (defvar lista-grupos (make-array '(21)))
     (dotimes (i (array-total-size lista-grupos))
         (setf (aref lista-grupos i) '())
+        (setf (aref tamanho-grupos i) 0)
     )
 )
 
@@ -38,20 +40,29 @@
     (loop for i below (array-total-size matriz-secundaria) do
         (setf valor (row-major-aref matriz-principal i))
         (setf index-grupo (row-major-aref matriz-secundaria i))
+        (setf (aref tamanho-grupos index-grupo) (+ (aref tamanho-grupos index-grupo) 1))
         (if (/= valor 0)
             (add-grupo index-grupo valor)
         )
     )
 )
 
+; Função auxiliar para inserir elemento em ordem crescente
+(defun insert (item lst &optional (key #'<))
+    (if (null lst)
+        (list item)
+        (if (funcall key item (car lst))
+            (cons item lst) 
+            (cons (car lst) (insert item (cdr lst) key)))))
+
 ; Insere elemento em grupo
 (defun add-grupo(grupo valor)
-    (setf (aref lista-grupos grupo) (append (aref lista-grupos grupo) (list valor)))
+    (setf (aref lista-grupos grupo) (insert valor (aref lista-grupos grupo)))
 )
 
 ; Remove elemento em grupo
 (defun remove-grupo(grupo valor)
-  (setf (aref lista-grupos grupo) (remove valor (aref lista-grupos grupo)))
+    (setf (aref lista-grupos grupo) (remove valor (aref lista-grupos grupo)))
 )
 
 ; Insere número na matriz principal
@@ -67,11 +78,18 @@
   (remove-grupo (aref matriz-secundaria lin col) x)
 )
 
-; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, duas condições devem ser atendidas:
+; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, três condições devem ser atendidas:
 ; 1. "num" não está contido no grupo "g".
 ; 2. "num" não está contido na linha "lin" nem na coluna "col";
+; 3. Os elementos de cada grupo devem formar uma sequência.
 (defun possivel(lin col num)
-    (if (not (or (busca-grupo lin col num) (busca-linha-coluna lin col num)))
+    (let (grupo))
+    (setf grupo (aref matriz-secundaria lin col))
+    (if (not (or (busca-grupo grupo num) (busca-linha-coluna lin col num)))
+        ;(if (no-intervalo grupo num)
+        ;    (return-from possivel t)
+        ;    (return-from possivel NIL)
+        ;)
         t
     )
 )
@@ -89,8 +107,8 @@
 )
 
 ; Verifica a condição 1
-(defun busca-grupo(lin col num)
-    (busca (aref lista-grupos (aref matriz-secundaria lin col)) num)
+(defun busca-grupo(grupo num)
+    (busca (aref lista-grupos grupo) num)
 )
 
 ; Verifica a condição 2
@@ -101,6 +119,66 @@
         )
         t
     )
+)
+
+; Verifica a condição 3
+(defun no-intervalo(grupo num)
+    (let (lstgrupo))
+    (setf lstgrupo (aref lista-grupos grupo))
+
+    (let (tamgrupo))
+    (setf tamgrupo (aref tamanho-grupos grupo))
+
+    (if (eq lstgrupo NIL)
+        (return-from no-intervalo t)
+    )
+
+    (if (= (list-length lstgrupo) (- tamgrupo 1))
+        (progn
+            ;(write lstgrupo)
+            (if (eh-sequencia (insert num lstgrupo))
+                t
+                NIL
+            )
+
+        )
+    )
+
+
+    (if (= (list-length lstgrupo) 1)
+        (progn 
+            (if (and (>= num (- (first lstgrupo) (- tamgrupo 1))) (<= num (+ (first lstgrupo) (- tamgrupo 1))))
+                (return-from no-intervalo t)
+                (return-from no-intervalo NIL)
+            )
+        )
+    )
+
+    (let (min))
+    (setf min (first lstgrupo))
+
+    (let (max))
+    (setf max (first (last lstgrupo)))
+
+    (let (diferenca))
+    (setf diferenca (- tamgrupo (+ (- max min) 1))) ; diferença entre tamanho do grupo e a distância do intervalo, inclusive
+
+    (if (and (>= num (- min diferenca)) (<= num (+ max diferenca)))
+        t
+    )
+)
+
+(defun eh-sequencia(lista)
+    (if (null lista)
+        t
+    )
+    (if (null (rest lista))
+        (return-from eh-sequencia t)
+    )
+    (if (= (+ (first lista) 1) (second lista))
+        (eh-sequencia (rest lista))
+    )
+
 )
 
 ; Getter para linha
@@ -161,6 +239,8 @@
     ; mostrar resultado
     (cria_puzzle)
     (set-grupos)
+    (write (eh-sequencia '(1 3 4)))
+    ;(write lista-grupos)
     (resolve 0 0)
 )
 
