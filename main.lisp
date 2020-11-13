@@ -1,6 +1,7 @@
 ; Esta função cria as estrutura que representam o puzzle
 (defun cria_puzzle()
-    (defvar n 7)
+    (defvar n)
+    (setf n 7)
     ; Cria a matriz principal, defvar seta var global
     (defvar matriz-principal (make-array '(7 7)
     :initial-contents '((0 0 7 0 5 0 2)
@@ -52,7 +53,7 @@
     (if (null lst)
         (list item)
         (if (funcall key item (car lst))
-            (cons item lst) 
+            (cons item lst)
             (cons (car lst) (insert item (cdr lst) key)))))
 
 ; Insere elemento em grupo
@@ -68,7 +69,10 @@
 ; Insere número na matriz principal
 (defun add-numero(lin col num)
     (setf (aref matriz-principal lin col) num)
-    (add-grupo (aref matriz-secundaria lin col) num)
+    (if (= num 0)
+      t
+      (add-grupo (aref matriz-secundaria lin col) num)
+    )
 )
 
 ; Remove número da matriz principal
@@ -86,11 +90,11 @@
     (let (grupo))
     (setf grupo (aref matriz-secundaria lin col))
     (if (not (or (busca-grupo grupo num) (busca-linha-coluna lin col num)))
-        ;(if (no-intervalo grupo num)
-        ;    (return-from possivel t)
-        ;    (return-from possivel NIL)
-        ;)
-        t
+        (if (no-intervalo grupo num)
+            (return-from possivel t)
+            (return-from possivel NIL)
+        )
+        ;t
     )
 )
 
@@ -146,7 +150,7 @@
 
 
     (if (= (list-length lstgrupo) 1)
-        (progn 
+        (progn
             (if (and (>= num (- (first lstgrupo) (- tamgrupo 1))) (<= num (+ (first lstgrupo) (- tamgrupo 1))))
                 (return-from no-intervalo t)
                 (return-from no-intervalo NIL)
@@ -239,7 +243,7 @@
     ; mostrar resultado
     (cria_puzzle)
     (set-grupos)
-    (write (eh-sequencia '(1 3 4)))
+    ;(write (eh-sequencia '(1 3 4)))
     ;(write lista-grupos)
     (resolve 0 0)
 )
