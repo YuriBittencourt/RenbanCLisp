@@ -3,7 +3,7 @@
     (defvar n)
     (setf n 7)
     ; Cria a matriz principal, defvar seta var global
-    (defvar matriz-principal (make-array '(7 7)
+    (defvar matriz-principal (make-array (list n n)
     :initial-contents '((0 0 7 0 5 0 2)
                         (0 0 0 0 0 0 0)
                         (2 0 0 0 0 1 0)
@@ -13,7 +13,7 @@
                         (0 0 0 0 0 6 4))))
 
     ; Cria matriz de grupos, cada valor corresponde ao grupo que a posicao pertence
-    (defvar matriz-secundaria (make-array '(7 7)
+    (defvar matriz-secundaria (make-array (list n n)
     :initial-contents '((0 1 2 2 3 4 4)
                         (18 18 19 2 3 4 5)
                         (16 17 20 20 3 6 7)
@@ -23,15 +23,34 @@
                         (13 12 12 11 10 9 9))))
 
 
-    ;(defvar num_grupos '(21))
+    (defvar num_grupos)
+    (setf num_grupos (+ (maior(matriz-lista matriz-secundaria)) 1))
 
     ; Cria uma lista que guarda os valores de cada grupo
     ; Usado para checar se há uma sequência válida de valores
-    (defvar tamanho-grupos (make-array '(21)))
-    (defvar lista-grupos (make-array '(21)))
+    (defvar tamanho-grupos (make-array (list num_grupos)))
+    (defvar lista-grupos (make-array (list num_grupos)))
     (dotimes (i (array-total-size lista-grupos))
         (setf (aref lista-grupos i) '())
         (setf (aref tamanho-grupos i) 0)
+    )
+)
+
+(defun matriz-lista(matriz)
+  (loop for i below (array-total-size matriz) collect
+      (row-major-aref matriz i)
+  )
+)
+
+(defun maior(lista)
+    (cond
+        ((null lista)
+            0)
+        ((null (rest lista))
+            (first lista))
+        ((> (first lista) (second lista))
+            (maior (cons (first lista) (rest (rest lista)))))
+        (t (maior (rest lista)))
     )
 )
 
