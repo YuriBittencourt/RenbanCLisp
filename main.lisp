@@ -84,6 +84,7 @@
     )
 )
 
+
 ; Encontra maior elemento em lista
 (defun maior(lista)
     (cond
@@ -97,6 +98,7 @@
     )
 )
 
+
 ; Função auxiliar para inserir elemento em ordem crescente
 (defun insert (item lst &optional (key #'<))
     (if (null lst)
@@ -108,15 +110,18 @@
     )
 )
 
+
 ; Insere elemento em grupo
 (defun add-grupo(grupo valor)
     (setf (aref lista-grupos grupo) (insert valor (aref lista-grupos grupo)))
 )
 
+
 ; Remove elemento de grupo
 (defun remove-grupo(grupo valor)
     (setf (aref lista-grupos grupo) (remove valor (aref lista-grupos grupo)))
 )
+
 
 ; Insere número na matriz principal
 (defun add-numero(lin col num)
@@ -127,12 +132,14 @@
     )
 )
 
+
 ; Remove número da matriz principal
 (defun remove-numero (lin col)
     (setf x (aref matriz-principal lin col))
     (add-numero lin col 0)
     (remove-grupo (aref matriz-secundaria lin col) x)
 )
+
 
 ; Inicializa os elementos nos grupos de acordo com o tabuleiro inicial
 (defun set-grupos()
@@ -146,6 +153,7 @@
         )
     )
 )
+
 
 ; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, três condições devem ser atendidas:
 ; 1. "num" não está contido no grupo "g".
@@ -162,6 +170,7 @@
     )
 )
 
+
 ; Função de busca em lista
 (defun busca(lista x)
     (cond
@@ -174,10 +183,12 @@
     )
 )
 
+
 ; Verifica a condição 1
 (defun busca-grupo(grupo num)
     (busca (aref lista-grupos grupo) num)
 )
+
 
 ; Verifica a condição 2
 (defun busca-linha-coluna(lin col num)
@@ -189,6 +200,7 @@
         t
     )
 )
+
 
 ; Verifica a condição 3
 (defun no-intervalo(grupo num)
@@ -237,6 +249,7 @@
     )
 )
 
+
 ; Verifica se uma lista forma sequência. Auxiliar para a função no-intervalo
 (defun eh-sequencia(lista)
     (if (null lista)
@@ -251,17 +264,20 @@
 
 )
 
+
 ; Getter para linha
 (defun getlinha(matriz lin)
     (loop for i below (array-dimension matriz 0) collect
         (aref matriz lin i))
 )
 
+
 ; Getter para coluna
 (defun getcoluna(matriz col)
     (loop for i below (array-dimension matriz 0) collect
         (aref matriz i col))
 )
+
 
 ; Utiliza backtracking para resolver o Renban
 (defun resolve(lin col)
@@ -279,6 +295,7 @@
     )
 )
 
+
 ; Recorre ao método resolve até que a resposta seja atingida
 (defun recursao(lin col)
     ; Matriz completa
@@ -293,16 +310,19 @@
     )
 )
 
+
 ; Término da execução
 (defun concluido()
     (write matriz-principal)
     (exit)
 )
 
+
 (defun main()
     (cria_puzzle)
     (set-grupos)
     (resolve 0 0)
 )
+
 
 (main)
