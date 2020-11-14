@@ -4,24 +4,13 @@
     (setf n 7)
 
     ; Cria a matriz principal
-    (defvar matriz-principal (make-array (list n n)
-        :initial-contents '((0 0 7 0 5 0 2)
-                            (0 0 0 0 0 0 0)
-                            (2 0 0 0 0 1 0)
-                            (1 0 5 2 0 0 0)
-                            (0 5 0 0 0 0 0)
-                            (0 0 1 0 0 0 0)
-                            (0 0 0 0 0 6 4))))
+    (defvar matriz-principal)
 
     ; Cria a matriz secundária, onde cada valor representa o grupo ao qual pertence o elemento de mesma posição da matriz principal
-    (defvar matriz-secundaria (make-array (list n n)
-        :initial-contents '((0 1 2 2 3 4 4)
-                            (18 18 19 2 3 4 5)
-                            (16 17 20 20 3 6 7)
-                            (16 16 20 3 3 7 7)
-                            (14 15 15 15 15 8 8)
-                            (13 12 12 11 11 9 9)
-                            (13 12 12 11 10 9 9))))
+    (defvar matriz-secundaria)
+        
+    ; Lê arquivo do STDIN e salva os valores em n, matriz principal e secundária    
+    (le-arquivo)
 
     ; Número de grupos
     (defvar num_grupos)
@@ -37,6 +26,56 @@
         (setf (aref tamanho-grupos i) 0)
     )
 )
+
+
+; Método que lê o arquivo passado pelo STDIN e insere os valores nas matrizes
+(defun le-arquivo()
+
+    (setq n (parse-integer (read-line))) ; tamanho da matriz, n x n
+    (read-line)
+    
+    (setq matriz-principal (make-array (list n n) :initial-element 0))
+    (loop for i from 0 to (- n 1)
+        do (let* ((line (read-line)) 
+                  (fields line))
+
+            (loop :for field :in (separa-linha fields)
+                :for j :upfrom 0
+                :do (setf (aref matriz-principal i j) (parse-integer field))
+            )
+        )      
+    )
+
+    (read-line)
+
+    (setq matriz-secundaria (make-array (list n n) :initial-element 0))
+    (loop for i from 0 to (- n 1)
+        do (let* ((line (read-line)) 
+                  (fields line))
+            
+            (loop :for field :in (separa-linha fields)
+                :for j :upfrom 0
+                :do (setf (aref matriz-secundaria i j) (parse-integer field))
+            )
+        )   
+    )
+)
+
+
+; Método que divide string em uma lista de strings com delimitador especificado
+(defun separa-linha (string &key (delimiterp #'delimiterp))
+    (loop :for beg = (position-if-not delimiterp string)
+        :then (position-if-not delimiterp string :start (1+ end))
+        :for end = (and beg (position-if delimiterp string :start beg))
+        :when beg :collect (subseq string beg end)
+        :while end
+    )
+)
+
+
+; Método que verifica se tal char é um dos caracteres que são delimitadores
+(defun delimiterp (c) (position c " "))
+
 
 ; Transforma matriz em lista
 (defun matriz-lista(matriz)
