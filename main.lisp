@@ -1,47 +1,51 @@
-; Esta função cria as estrutura que representam o puzzle
+; Cria as estruturas que representam o Renban
 (defun cria_puzzle()
     (defvar n)
     (setf n 7)
-    ; Cria a matriz principal, defvar seta var global
+
+    ; Cria a matriz principal
     (defvar matriz-principal (make-array (list n n)
-    :initial-contents '((0 0 7 0 5 0 2)
-                        (0 0 0 0 0 0 0)
-                        (2 0 0 0 0 1 0)
-                        (1 0 5 2 0 0 0)
-                        (0 5 0 0 0 0 0)
-                        (0 0 1 0 0 0 0)
-                        (0 0 0 0 0 6 4))))
+        :initial-contents '((0 0 7 0 5 0 2)
+                            (0 0 0 0 0 0 0)
+                            (2 0 0 0 0 1 0)
+                            (1 0 5 2 0 0 0)
+                            (0 5 0 0 0 0 0)
+                            (0 0 1 0 0 0 0)
+                            (0 0 0 0 0 6 4))))
 
-    ; Cria matriz de grupos, cada valor corresponde ao grupo que a posicao pertence
+    ; Cria a matriz secundária, onde cada valor representa o grupo ao qual pertence o elemento de mesma posição da matriz principal
     (defvar matriz-secundaria (make-array (list n n)
-    :initial-contents '((0 1 2 2 3 4 4)
-                        (18 18 19 2 3 4 5)
-                        (16 17 20 20 3 6 7)
-                        (16 16 20 3 3 7 7)
-                        (14 15 15 15 15 8 8)
-                        (13 12 12 11 11 9 9)
-                        (13 12 12 11 10 9 9))))
+        :initial-contents '((0 1 2 2 3 4 4)
+                            (18 18 19 2 3 4 5)
+                            (16 17 20 20 3 6 7)
+                            (16 16 20 3 3 7 7)
+                            (14 15 15 15 15 8 8)
+                            (13 12 12 11 11 9 9)
+                            (13 12 12 11 10 9 9))))
 
-
+    ; Número de grupos
     (defvar num_grupos)
     (setf num_grupos (+ (maior(matriz-lista matriz-secundaria)) 1))
 
-    ; Cria uma lista que guarda os valores de cada grupo
-    ; Usado para checar se há uma sequência válida de valores
-    (defvar tamanho-grupos (make-array (list num_grupos)))
+    ; Vetor contendo os grupos
     (defvar lista-grupos (make-array (list num_grupos)))
+    ; Vetor com os tamanhos de cada lista
+    (defvar tamanho-grupos (make-array (list num_grupos)))
+    ; Inicialização dos vetores
     (dotimes (i (array-total-size lista-grupos))
         (setf (aref lista-grupos i) '())
         (setf (aref tamanho-grupos i) 0)
     )
 )
 
+; Transforma matriz em lista
 (defun matriz-lista(matriz)
-  (loop for i below (array-total-size matriz) collect
-      (row-major-aref matriz i)
-  )
+    (loop for i below (array-total-size matriz) collect
+        (row-major-aref matriz i)
+    )
 )
 
+; Encontra maior elemento em lista
 (defun maior(lista)
     (cond
         ((null lista)
@@ -54,33 +58,23 @@
     )
 )
 
-; Inicializa os elementos nos grupos de acordo com o tabuleiro inicial
-(defun set-grupos()
-    (let ((valor) (index-grupo)))
-    (loop for i below (array-total-size matriz-secundaria) do
-        (setf valor (row-major-aref matriz-principal i))
-        (setf index-grupo (row-major-aref matriz-secundaria i))
-        (setf (aref tamanho-grupos index-grupo) (+ (aref tamanho-grupos index-grupo) 1))
-        (if (/= valor 0)
-            (add-grupo index-grupo valor)
-        )
-    )
-)
-
 ; Função auxiliar para inserir elemento em ordem crescente
 (defun insert (item lst &optional (key #'<))
     (if (null lst)
         (list item)
         (if (funcall key item (car lst))
             (cons item lst)
-            (cons (car lst) (insert item (cdr lst) key)))))
+            (cons (car lst) (insert item (cdr lst) key))
+        )
+    )
+)
 
 ; Insere elemento em grupo
 (defun add-grupo(grupo valor)
     (setf (aref lista-grupos grupo) (insert valor (aref lista-grupos grupo)))
 )
 
-; Remove elemento em grupo
+; Remove elemento de grupo
 (defun remove-grupo(grupo valor)
     (setf (aref lista-grupos grupo) (remove valor (aref lista-grupos grupo)))
 )
@@ -96,9 +90,22 @@
 
 ; Remove número da matriz principal
 (defun remove-numero (lin col)
-  (setf x (aref matriz-principal lin col))
-  (add-numero lin col 0)
-  (remove-grupo (aref matriz-secundaria lin col) x)
+    (setf x (aref matriz-principal lin col))
+    (add-numero lin col 0)
+    (remove-grupo (aref matriz-secundaria lin col) x)
+)
+
+; Inicializa os elementos nos grupos de acordo com o tabuleiro inicial
+(defun set-grupos()
+    (let ((valor) (index-grupo)))
+    (loop for i below (array-total-size matriz-secundaria) do
+        (setf valor (row-major-aref matriz-principal i))
+        (setf index-grupo (row-major-aref matriz-secundaria i))
+        (setf (aref tamanho-grupos index-grupo) (+ (aref tamanho-grupos index-grupo) 1))
+        (if (/= valor 0)
+            (add-grupo index-grupo valor)
+        )
+    )
 )
 
 ; Para que um número "num" possa ser inserido num grupo "g" na posição [lin, col] da matriz principal, três condições devem ser atendidas:
@@ -113,7 +120,6 @@
             (return-from possivel t)
             (return-from possivel NIL)
         )
-        ;t
     )
 )
 
@@ -136,7 +142,8 @@
 
 ; Verifica a condição 2
 (defun busca-linha-coluna(lin col num)
-    (if (or
+    (if 
+        (or
             (busca (getlinha matriz-principal lin) num)
             (busca (getcoluna matriz-principal col) num)
         )
@@ -148,49 +155,50 @@
 (defun no-intervalo(grupo num)
     (let (lstgrupo))
     (setf lstgrupo (aref lista-grupos grupo))
-
     (let (tamgrupo))
     (setf tamgrupo (aref tamanho-grupos grupo))
-
-    (if (eq lstgrupo NIL)
+    
+    ; Grupo vazio
+    (if (null lstgrupo)
         (return-from no-intervalo t)
     )
 
-    (if (= (list-length lstgrupo) (- tamgrupo 1))
-        (progn
-            ;(write lstgrupo)
-            (if (eh-sequencia (insert num lstgrupo))
-                t
-                NIL
-            )
-
-        )
-    )
-
-
+    ; Grupo com um elemento
     (if (= (list-length lstgrupo) 1)
         (progn
             (if (and (>= num (- (first lstgrupo) (- tamgrupo 1))) (<= num (+ (first lstgrupo) (- tamgrupo 1))))
-                (return-from no-intervalo t)
-                (return-from no-intervalo NIL)
+                t
+                NIL
+            )
+        )
+    )
+
+    ; Grupo com (tamgrupo - 1) elementos
+    ; Insere o último elemento e testa se forma sequência
+    (if (= (list-length lstgrupo) (- tamgrupo 1))
+        (progn
+            (if (eh-sequencia (insert num lstgrupo))
+                t
+                NIL
             )
         )
     )
 
     (let (min))
     (setf min (first lstgrupo))
-
     (let (max))
     (setf max (first (last lstgrupo)))
 
+    ; Diferença entre tamanho do grupo e a distância do intervalo, inclusive
     (let (diferenca))
-    (setf diferenca (- tamgrupo (+ (- max min) 1))) ; diferença entre tamanho do grupo e a distância do intervalo, inclusive
+    (setf diferenca (- tamgrupo (+ (- max min) 1)))
 
     (if (and (>= num (- min diferenca)) (<= num (+ max diferenca)))
         t
     )
 )
 
+; Verifica se uma lista forma sequência. Auxiliar para a função no-intervalo
 (defun eh-sequencia(lista)
     (if (null lista)
         t
@@ -216,54 +224,45 @@
         (aref matriz i col))
 )
 
-
-(defun concluido()
-  (write matriz-principal)
-  (exit)
-)
-
-(defun iteracao(lin col)
-  (if (and (= lin (- n 1)) (= col (- n 1)))
-    (concluido)
-  )
-
-  (if (= col (- n 1))
-      (resolve (+ lin 1) 0)
-      (resolve lin (+ col 1))
-  )
-)
-
-; Esta função implementa o backtracking, estratégia empregada para a resolução do cria_puzzle
+; Utiliza backtracking para resolver o Renban
 (defun resolve(lin col)
-  (if (=(aref matriz-principal lin col) 0)
-      (progn
+    (if (=(aref matriz-principal lin col) 0)
         (loop for num from 1 to 7 do
-
-          (if (eq(possivel lin col num) T)
-
-              (progn
-                (add-numero lin col num)
-                (iteracao lin col)
-                (remove-numero lin col)
-              )
-          )
+            (if (eq(possivel lin col num) T)
+                (progn
+                    (add-numero lin col num)
+                    (recursao lin col)
+                    (remove-numero lin col)
+                )
+            )
         )
-      )
-      (iteracao lin col)
-  )
+    (recursao lin col)
+    )
 )
 
+; Recorre ao método resolve até que a resposta seja atingida
+(defun recursao(lin col)
+    ; Matriz completa
+    (if (and (= lin (- n 1)) (= col (- n 1)))
+        (concluido)
+    )
+    
+    ; Matriz incompleta
+    (if (= col (- n 1))
+        (resolve (+ lin 1) 0)
+        (resolve lin (+ col 1))
+    )
+)
 
+; Término da execução
+(defun concluido()
+    (write matriz-principal)
+    (exit)
+)
 
 (defun main()
-    ; cria_puzzle()
-    ; mostrar puzzle
-    ; resolve()
-    ; mostrar resultado
     (cria_puzzle)
     (set-grupos)
-    ;(write (eh-sequencia '(1 3 4)))
-    ;(write lista-grupos)
     (resolve 0 0)
 )
 
