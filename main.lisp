@@ -31,9 +31,9 @@
 
 ; Utiliza backtracking para resolver o Renban
 (defun resolve(lin col)
-    (if (=(aref matriz-principal lin col) 0)
+    (if (= (aref matriz-principal lin col) 0)
         (loop for num from 1 to n do
-            (if (eq(possivel lin col num) T)
+            (if (eq (possivel lin col num) T)
                 (progn
                     (add-numero lin col num)
                     (recursao lin col)
@@ -112,16 +112,6 @@
         ; Grupo vazio
         (if (null lstgrupo)
             (return-from no-intervalo t)
-        )
-
-        ; Grupo com um elemento
-        (if (= (list-length lstgrupo) 1)
-            (progn
-                (if (and (>= num (- (first lstgrupo) (- tamgrupo 1))) (<= num (+ (first lstgrupo) (- tamgrupo 1))))
-                    t
-                    NIL
-                )
-            )
         )
 
         ; Grupo com (tamgrupo - 1) elementos
