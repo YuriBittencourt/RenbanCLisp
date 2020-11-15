@@ -228,8 +228,8 @@
 (defun add-numero(lin col num)
     (setf (aref matriz-principal lin col) num)
     (if (= num 0)
-      t
-      (add-grupo (aref matriz-secundaria lin col) num)
+        t
+        (add-grupo (aref matriz-secundaria lin col) num)
     )
 )
 
